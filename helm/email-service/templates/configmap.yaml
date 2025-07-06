@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "email-service.fullname" . }}-config
+  labels:
+    app: ct-iot
+data:
+  sentryTracesSampleRate: {{ .Values.image.env.sentryTracesSampleRate | quote }}
+  sentryProfilesSampleRate: {{ .Values.image.env.sentryProfilesSampleRate | quote }}
+  sentrySampleRate: {{ .Values.image.env.sentrySampleRate | quote }}
+  environment: {{ .Values.image.env.environment | quote }}
+  logLevel: {{ .Values.image.env.logLevel | quote }}
+  serviceName: {{ .Values.image.env.serviceName | quote }}
+  uvicornPort: {{ .Values.image.env.uvicornPort | quote }}
+  consumerBootstrapServers: {{ .Values.image.env.consumerBootstrapServers | quote }}
+  consumerSessionTimeoutMillis: {{ .Values.image.env.consumerSessionTimeoutMillis | quote }}
+  consumerAutoOffsetReset: {{ .Values.image.env.consumerAutoOffsetReset | quote }}
+  consumerEnableAutoOffsetStore: {{ .Values.image.env.consumerEnableAutoOffsetStore | quote }}
+  queueProtocol: {{ .Values.image.env.queueProtocol | quote }}
+  queueHost: {{ .Values.image.env.queueHost | quote }}
+  queuePorts: {{ .Values.image.env.queuePorts | quote }}
+  queueTimeoutSeconds: {{ .Values.image.env.queueTimeoutSeconds | quote }}
+  queueAcks: {{ .Values.image.env.queueAcks | quote }}
+  queuePollWaitSeconds: {{ .Values.image.env.queuePollWaitSeconds | quote }}
+  queueTopicName: {{ .Values.image.env.queueTopicName | quote }}
+  queueDlqName: {{ .Values.image.env.queueDlqName | quote }}
+  queueGroupId: {{ .Values.image.env.queueGroupId | quote }}
+  emailAccountVerificationType: {{ .Values.image.env.emailAccountVerificationType | quote }}

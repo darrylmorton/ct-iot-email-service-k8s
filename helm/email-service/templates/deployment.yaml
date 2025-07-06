@@ -1,0 +1,174 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "email-service.fullname" . }}
+  labels:
+    {{- include "email-service.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "email-service.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "email-service.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "email-service.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          env:
+            - name: SENTRY_TRACES_SAMPLE_RATE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: sentryTracesSampleRate
+            - name: SENTRY_PROFILES_SAMPLE_RATE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: sentryProfilesSampleRate
+            - name: SENTRY_SAMPLE_RATE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: sentrySampleRate
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: environment
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: logLevel
+            - name: SERVICE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: serviceName
+            - name: UVICORN_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: uvicornPort
+            - name: CONSUMER_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: consumerBootstrapServers
+            - name: CONSUMER_SESSION_TIMEOUT_MILLIS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: consumerSessionTimeoutMillis
+            - name: CONSUMER_AUTO_OFFSET_RESET
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: consumerAutoOffsetReset
+            - name: CONSUMER_ENABLE_AUTO_OFFSET_STORE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: consumerEnableAutoOffsetStore
+            - name: QUEUE_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: queueProtocol
+            - name: QUEUE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: queueHost
+            - name: QUEUE_PORTS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: queuePorts
+            - name: QUEUE_TIMEOUT_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: queueTimeoutSeconds
+            - name: QUEUE_ACKS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: queueAcks
+            - name: QUEUE_POLL_WAIT_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: queuePollWaitSeconds
+            - name: QUEUE_TOPIC_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: queueTopicName
+            - name: QUEUE_DLQ_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: queueDlqName
+            - name: QUEUE_GROUP_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: queueGroupId
+            - name: EMAIL_ACCOUNT_VERIFICATION_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "email-service.fullname" . }}-config
+                  key: emailAccountVerificationType
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

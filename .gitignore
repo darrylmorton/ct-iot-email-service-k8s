@@ -1,0 +1,12 @@
+.DS_Store
+.idea/
+__pycache__/
+.pytest_cache/
+bin/
+venv/
+.env
+.env.sentry
+*.log
+htmlcov/
+.coverage
+helm/email-service/secrets-decrypted/

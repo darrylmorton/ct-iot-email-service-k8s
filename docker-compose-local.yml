@@ -1,0 +1,58 @@
+services:
+  kafka-kraft:
+    image: confluentinc/cp-kafka:7.8.0.arm64
+    hostname: kafka-kraft
+    container_name: kafka-kraft
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-kraft:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-kraft:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-kraft:29092,CONTROLLER://kafka-kraft:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      CLUSTER_ID: 'mrhrCnrlRAaSqOVYNjq__g' # bin/kafka-storage random-uuid
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      start_interval: 15s
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest:7.8.0.arm64
+    ports:
+      - "8082:8082"
+    depends_on:
+      - kafka-kraft
+    hostname: rest-proxy
+    container_name: rest-proxy
+    environment:
+      KAFKA_REST_HOST_NAME: rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: "kafka-kraft:29092"
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+
+  kafka-init:
+    image: confluentinc/cp-kafka:7.8.0.arm64
+    depends_on:
+      kafka-kraft:
+        condition: service_healthy
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka-kraft:29092 --list
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka-kraft:29092 --create --if-not-exists --topic email-topic --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka-kraft:29092 --list
+      "
