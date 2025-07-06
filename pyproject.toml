@@ -1,0 +1,104 @@
+[tool.poetry]
+name = "ct-iot-email-service"
+version = "1.0.0"
+description = "ct iot email service"
+authors = ["Darryl Morton"]
+license = "GNU"
+readme = "README.md"
+repository = "https://github.com/darrylmorton/ct-iot-email-service.git"
+keywords = ["ct", "iot", "email", "service"]
+packages = [{ include = "email_service", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11.9"
+fastapi = {version = "^0.115.4", extras = ["standard"]}
+uvicorn = {extras = ["standard"], version = "^0.23.2"}
+python-dotenv = "^1.0.1"
+structlog = "^24.1.0"
+toml = "^0.10.2"
+sentry-sdk = {version = "^2.11.1", extras = ["fastapi"]}
+requests = "^2.32.3"
+boto3 = "^1.35.50"
+confluent-kafka = "^2.11.0"
+prometheus-client = "^0.22.1"
+
+[tool.poetry.group.dev.dependencies]
+trio = "^0.22.2"
+ruff = "^0.1.1"
+pytest-cov = "^4.1.0"
+moto = "^5.0.18"
+cryptography = "44.0.1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+
+[tool.poetry.group.test.dependencies]
+httpx = "^0.25.0"
+pytest = "^7.4.2"
+pytest-asyncio = "^0.21.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+preview = true
+include = ["*.py", "*.pyi", "pyproject.toml", "*.ipynb"]
+line-length = 88  # defaults to 88 like black
+target-version = "py310"  # the python version to target, useful when considering code upgrades, defaults to "py310"
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+select = ["E4", "E7", "E9", "F", "E"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+#magic-trailing-comma = "respect"
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+[tool.pytest.ini_options]
+pythonpath = [ "src/" ]
+asyncio_mode = "auto"
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+addopts = "--cov --cov-config=./pytest-cov.ini --cov-report term-missing --cov-report=html"
