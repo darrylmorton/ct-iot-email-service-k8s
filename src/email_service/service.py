@@ -6,16 +6,15 @@ from sentry_sdk.integrations.starlette import StarletteIntegration
 from prometheus_client import make_asgi_app
 
 import config
-from kafka.email_consumer import EmailConsumer
+from message_queue.email_consumer import EmailConsumer
 from logger import log
-from config import SERVICE_NAME
 from routers import health
 from utils.app_util import AppUtil
 
 
 @contextlib.asynccontextmanager
 async def lifespan_wrapper(app: FastAPI):
-    log.info(f"Starting {SERVICE_NAME}...{app.host}")
+    log.info(f"Starting {config.SERVICE_NAME}...{app.host}")
     log.info(f"Sentry {config.SENTRY_ENVIRONMENT} environment")
     log.info(f"Application {config.ENVIRONMENT} environment")
 

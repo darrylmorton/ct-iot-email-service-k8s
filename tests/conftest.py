@@ -6,7 +6,7 @@ from moto import mock_aws
 
 import pytest
 
-from kafka.email_consumer import EmailConsumer
+from message_queue.email_consumer import EmailConsumer
 import tests.config as test_config
 
 load_dotenv(dotenv_path=".env.test")

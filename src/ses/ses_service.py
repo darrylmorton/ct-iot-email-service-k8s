@@ -10,7 +10,7 @@ class EmailService:
         self.source = config.SES_SOURCE
         self.ses_client = boto3.client("ses", region_name=config.AWS_REGION)
 
-    def send(self, username, email_type):
+    def send(self, email_type, username, first_name, token_url, token_url_hash) -> dict:
         try:
             response = self.ses_client.send_email(
                 Destination={
@@ -18,7 +18,6 @@ class EmailService:
                         username,
                     ],
                 },
-                # TODO tokenUrl is missing here
                 Message={
                     "Body": {
                         "Html": {
@@ -27,11 +26,15 @@ class EmailService:
                                 <head></head>
                                 <body>
                                   <h1>{email_type}</h1>
-                                  <p>This email was sent with
-                                    <a href='https://aws.amazon.com/ses/'>Amazon SES</a>
-                                        using the
-                                    <a href='https://aws.amazon.com/sdk-for-python/'>
-                                      AWS SDK for Python (Boto)</a>.</p>
+                                  <p>
+                                    Dear {first_name},<br />
+                                    Please confirm your account by clicking on the link below (expires in 1 hour):<br />
+                                    <a href="{token_url}">{token_url_hash}</a>
+                                  </p>
+                                  <p>
+                                    Thanks,<br />
+                                    The Team
+                                  </p>
                                 </body>
                                 </html>""",
                         },

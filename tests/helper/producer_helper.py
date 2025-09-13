@@ -11,7 +11,6 @@ from logger import log
 import tests.config as test_config
 from tests.helper.email_helper import create_email_message
 from tests.helper.kafka_helper import create_config
-from tests.helper.token_helper import encode_token
 
 
 class EmailProducer:
@@ -34,7 +33,14 @@ class EmailProducer:
         self._cancelled = True
         self._poll_thread.join()
 
-    def produce(self, email_type: str, username: str):
+    def produce(
+        self,
+        email_type: str,
+        username: str,
+        first_name: str,
+        token_url: str,
+        token_url_hash: str,
+    ):
         """
         An awaitable produce method.
         """
@@ -52,10 +58,12 @@ class EmailProducer:
                     self._loop.call_soon_threadsafe(result.set_result, msg)
 
             message = create_email_message(
-                username=username,
-                email_type=email_type,
                 timestamp=datetime.now(tz=timezone.utc).isoformat(),
-                token=encode_token(username, email_type),
+                email_type=email_type,
+                username=username,
+                first_name=first_name,
+                token_url=token_url,
+                token_url_hash=token_url_hash,
             )
 
             self._producer.produce(

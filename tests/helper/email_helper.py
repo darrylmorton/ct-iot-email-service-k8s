@@ -3,9 +3,9 @@ import time
 
 from confluent_kafka import KafkaException
 
-from kafka.email_consumer import EmailConsumer
 from logger import log
 import tests.config as test_config
+from message_queue.email_consumer import EmailConsumer
 
 
 async def consumer_poll(_consumer: EmailConsumer, timeout_seconds=0):
@@ -53,11 +53,15 @@ def create_email_message(
     timestamp: str,
     email_type: str,
     username: str,
-    token: str,
+    first_name: str,
+    token_url: str,
+    token_url_hash: str,
 ) -> dict:
     return dict(
+        timestamp=timestamp,
         email_type=email_type,
         username=username,
-        timestamp=timestamp,
-        token=token,
+        first_name=first_name,
+        token_url=token_url,
+        token_url_hash=token_url_hash,
     )

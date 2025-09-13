@@ -95,6 +95,7 @@ indent-style = "space"
 line-ending = "auto"
 
 [tool.pytest.ini_options]
+cache_dir = "./.venv/pypoetry"
 pythonpath = [ "src/" ]
 asyncio_mode = "auto"
 log_cli = true
