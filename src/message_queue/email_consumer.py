@@ -35,7 +35,7 @@ class EmailConsumer:
 
         await self.consume()
 
-    def process_message(self, message_body: Any):
+    def process_message(self, message_body: dict) -> dict:
         log.debug("Processing email message...")
 
         timestamp = message_body.get("timestamp")
@@ -64,8 +64,7 @@ class EmailConsumer:
         else:
             return {"ResponseMetadata": {"HTTPStatusCode": 400}}
 
-    # TODO type return missing
-    async def consume(self):
+    async def consume(self) -> dict:
         log.debug("Consuming email messages...")
 
         processed_message = {}

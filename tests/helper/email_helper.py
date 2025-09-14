@@ -8,7 +8,7 @@ import tests.config as test_config
 from message_queue.email_consumer import EmailConsumer
 
 
-async def consumer_poll(_consumer: EmailConsumer, timeout_seconds=0):
+async def consumer_poll(_consumer: EmailConsumer, timeout_seconds=0) -> dict:
     timeout = time.time() + timeout_seconds
     processed_message = {}
 
