@@ -34,7 +34,7 @@ def create_token_expiry() -> datetime:
 def decode_token(token: str) -> dict:
     try:
         return jwt.decode(
-            token, test_config.JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT, algorithms=["HS256"]
+            token, test_config.JWT_SECRET_CONFIRM_ACCOUNT, algorithms=["HS256"]
         )
 
     except TypeError as error:
@@ -68,7 +68,7 @@ def encode_token(_username: str, _email_type: str):
                 "email_type": _email_type,
                 "exp": create_token_expiry(),
             },
-            test_config.JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT,
+            test_config.JWT_SECRET_CONFIRM_ACCOUNT,
             algorithm="HS256",
         )
     except KeyError as error:
