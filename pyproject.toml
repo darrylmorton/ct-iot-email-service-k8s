@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ct-iot-email-service"
-version = "1.0.0"
+version = "1.0.1"
 description = "ct iot email service"
 authors = ["Darryl Morton"]
 license = "GNU"
