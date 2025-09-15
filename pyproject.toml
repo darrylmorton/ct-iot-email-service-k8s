@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ct-iot-email-service"
-version = "1.0.0"
+version = "1.0.1"
 description = "ct iot email service"
 authors = ["Darryl Morton"]
 license = "GNU"
@@ -95,9 +95,10 @@ indent-style = "space"
 line-ending = "auto"
 
 [tool.pytest.ini_options]
+cache_dir = "./.venv/pypoetry"
 pythonpath = [ "src/" ]
 asyncio_mode = "auto"
-log_cli = true
+log_cli = false
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"

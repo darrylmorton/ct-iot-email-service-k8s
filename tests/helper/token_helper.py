@@ -9,7 +9,7 @@ from logger import log
 
 
 def create_token_expiry(
-    _seconds=test_config.JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT,
+    _seconds=test_config.JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT,
 ) -> datetime:
     return datetime.now(tz=timezone.utc) + timedelta(seconds=_seconds)
 
@@ -27,14 +27,14 @@ def create_token(
 
 def create_token_expiry() -> datetime:
     return datetime.now(tz=timezone.utc) + timedelta(
-        seconds=test_config.JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT
+        seconds=test_config.JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT
     )
 
 
 def decode_token(token: str) -> dict:
     try:
         return jwt.decode(
-            token, test_config.JWT_SECRET_VERIFY_ACCOUNT, algorithms=["HS256"]
+            token, test_config.JWT_SECRET_CONFIRM_ACCOUNT, algorithms=["HS256"]
         )
 
     except TypeError as error:
@@ -68,7 +68,7 @@ def encode_token(_username: str, _email_type: str):
                 "email_type": _email_type,
                 "exp": create_token_expiry(),
             },
-            test_config.JWT_SECRET_VERIFY_ACCOUNT,
+            test_config.JWT_SECRET_CONFIRM_ACCOUNT,
             algorithm="HS256",
         )
     except KeyError as error:

@@ -1,10 +1,10 @@
 from httpx import AsyncClient, ASGITransport
 
-from tests.config import APP_PORT
+import tests.config as test_config
 
 
 class RoutesHelper:
-    TEST_URL = f"http://localhost:{APP_PORT}"
+    TEST_URL = f"http://localhost:{test_config.APP_PORT}"
 
     @staticmethod
     async def http_client(app, path, token=None):

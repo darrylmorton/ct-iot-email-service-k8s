@@ -1,13 +1,12 @@
 import json
 import time
-from typing import Any
 
 from botocore.exceptions import ClientError
 from confluent_kafka import KafkaException, Consumer
+from ses.ses_service import EmailService
 
 import config
 from logger import log
-from ses.ses_service import EmailService
 
 
 class EmailConsumer:
@@ -35,22 +34,23 @@ class EmailConsumer:
 
         await self.consume()
 
-    def process_message(self, message_body: Any):
+    def process_message(self, message_body: dict):
         log.debug("Processing email message...")
+
+        timestamp = message_body.get("timestamp")
+        log.debug(f"Message timestamp: {timestamp}")
 
         email_type = message_body.get("email_type")
         username = message_body.get("username")
-        timestamp = message_body.get("timestamp")
-        # TODO token should be tokenUrl
-        token = message_body.get("token")
+        first_name = message_body.get("first_name")
+        token_url = message_body.get("token_url")
+        token_url_hash = message_body.get("token_url_hash")
 
-        log.debug(
-            f"Processed message's {timestamp=}, {email_type=}, {username=}, {token=}"
-        )
-
-        if email_type == config.QUEUE_EMAIL_ACCOUNT_VERIFICATION_TYPE:
+        if email_type in config.EMAIL_VERIFICATION_TYPES:
             try:
-                response = self.email_service.send(username, email_type)
+                response = self.email_service.send(
+                    email_type, username, first_name, token_url, token_url_hash
+                )
 
             except ClientError as e:
                 log.error(f"Client error {e.response['Error']['Message']}")
@@ -65,8 +65,7 @@ class EmailConsumer:
         else:
             return {"ResponseMetadata": {"HTTPStatusCode": 400}}
 
-    # TODO type return missing
-    async def consume(self):
+    async def consume(self) -> dict:
         log.debug("Consuming email messages...")
 
         processed_message = {}

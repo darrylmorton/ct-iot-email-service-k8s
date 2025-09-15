@@ -1,3 +1,4 @@
+import hashlib
 import socket
 
 import tests.config as test_config
@@ -13,6 +14,31 @@ def create_config() -> dict:
         # Fixed properties
         "acks": "all",
     }
+
+
+def create_token_url(token: str) -> str:
+    """
+    Creates a token URL for account confirmation.
+
+    Args:
+        token (str): The token to include in the URL.
+    """
+
+    return f"{test_config.USER_SERVICE_URL}/confirm-account?token={token}"
+
+
+def create_hash_token_url(token_url: str) -> str:
+    """
+    Creates an SHA-256 hash of the token URL.
+
+    Args:
+        token_url (str): The token URL to hash.
+
+    Returns:
+        str: The SHA-256 hash of the token URL.
+    """
+
+    return hashlib.sha256(token_url.encode()).hexdigest()
 
 
 def create_email_message(
