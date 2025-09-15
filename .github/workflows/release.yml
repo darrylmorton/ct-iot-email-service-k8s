@@ -2,29 +2,63 @@ name: Build and publish a Docker image
 
 # Configures this workflow to run every time a main branch pull request has been merged.
 on:
-  push:
-    tags: [ '[0-9].[0-9].[0-9]']
+  # This workflow will run when a pull request is closed and merged into the main branch.
+  pull_request:
+    types: ["closed"]
+  # This workflow will run when a tag matching the specified pattern is pushed.
+#  push:
+#    tags: ['[0-9].[0-9].[0-9]']
 
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  BRANCH_NAME: ${{ github.ref_name }}
 
-# There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          echo The PR was merged!
+
+  call-workflow:
+    needs: [ if_merged ]
+    uses: ./.github/workflows/action.yml
+    secrets:
+      repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  create-tag:
+    runs-on: ubuntu-latest
+    needs: [ call-workflow ]
+    permissions:
+      contents: write
+    env:
+      BRANCH_NAME: ${{ needs.call-workflow.outputs.app_version }}
+
+    steps:
+      - name: Create and push tag
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.call-workflow.outputs.app_version }}
+          generate_release_notes: true
+
   build-and-push-image:
     runs-on: ubuntu-latest
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    needs: [ call-workflow ]
+
     permissions:
       contents: read
       packages: write
-      attestations: write
+      pages: write
       id-token: write
-      #
+      attestations: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       # Uses the `docker/login-action` action to log in to the Container registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
@@ -32,6 +66,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -42,6 +77,8 @@ jobs:
             prefix=
             suffix=
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: ${{ needs.call-workflow.outputs.app_version }}
+
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see "[Usage](https://github.com/docker/build-push-action#usage)" in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
