@@ -45,10 +45,10 @@ async def lifespan_wrapper(app: FastAPI):
 
     await EmailConsumer().poll()
 
-    log.info(f"{SERVICE_NAME} is ready")
+    log.info(f"{config.SERVICE_NAME} is ready")
 
     yield
-    log.info(f"{SERVICE_NAME} is shutting down...")
+    log.info(f"{config.SERVICE_NAME} is shutting down...")
 
 
 app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)

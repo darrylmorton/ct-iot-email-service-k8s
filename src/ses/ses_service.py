@@ -28,7 +28,8 @@ class EmailService:
                                   <h1>{email_type}</h1>
                                   <p>
                                     Dear {first_name},<br />
-                                    Please confirm your account by clicking on the link below (expires in 1 hour):<br />
+                                    Please confirm your account by clicking on the
+                                     link below (expires in 1 hour):<br />
                                     <a href="{token_url}">{token_url_hash}</a>
                                   </p>
                                   <p>

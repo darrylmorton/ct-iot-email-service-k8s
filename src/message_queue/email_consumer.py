@@ -1,6 +1,5 @@
 import json
 import time
-from typing import Any
 
 from botocore.exceptions import ClientError
 from confluent_kafka import KafkaException, Consumer
@@ -35,10 +34,12 @@ class EmailConsumer:
 
         await self.consume()
 
-    def process_message(self, message_body: dict) -> dict:
+    def process_message(self, message_body: dict):
         log.debug("Processing email message...")
 
         timestamp = message_body.get("timestamp")
+        log.debug(f"Message timestamp: {timestamp}")
+
         email_type = message_body.get("email_type")
         username = message_body.get("username")
         first_name = message_body.get("first_name")
